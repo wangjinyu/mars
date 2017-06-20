@@ -31,6 +31,8 @@ enum TAppenderMode
     kAppednerSync,
 };
 
+void xlogger_set_alive_time(long seconds);
+void set_xlogger_log_start_with_mmap_info(bool mmap);
 void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefix);
 void appender_open_with_cache(TAppenderMode _mode, const std::string& _cachedir, const std::string& _logdir, const char* _nameprefix);
 void appender_flush();

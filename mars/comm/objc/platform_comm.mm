@@ -36,8 +36,6 @@
 
 #if !TARGET_OS_IPHONE
 static float __GetSystemVersion() {
-    //	float system_version = [UIDevice currentDevice].systemVersion.floatValue;
-    //	return system_version;
     NSString *versionString;
     NSDictionary * sv = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
     if (nil != sv){
@@ -172,28 +170,22 @@ unsigned int getSignal(bool isWifi){
 void ConsoleLog(const XLoggerInfo* _info, const char* _log)
 {
     SCOPE_POOL();
-
+    
     if (NULL==_info || NULL==_log) return;
     
-    static const char* levelStrings[] = {
-        "V",
-        "D",  // debug
-        "I",  // info
-        "W",  // warn
-        "E",  // error
-        "F"  // fatal
-    };
-    
-    char strFuncName[128]  = {0};
-    ExtractFunctionName(_info->func_name, strFuncName, sizeof(strFuncName));
-    
-    const char* file_name = ExtractFileName(_info->filename);
-    
+//    char strFuncName[128]  = {0};
+//    ExtractFunctionName(_info->func_name, strFuncName, sizeof(strFuncName));
     char log[16 * 1024] = {0};
-    snprintf(log, sizeof(log), "[%s][%s][%s, %s, %d][%s", levelStrings[_info->level], NULL == _info->tag ? "" : _info->tag, file_name, strFuncName, _info->line, _log);
     
+    char temp_time[64] = {0};
     
-    NSLog(@"%@", [NSString stringWithUTF8String:log]);
+    if (0 != _info->timeval.tv_sec) {
+        time_t sec = _info->timeval.tv_sec;
+        tm tm = *localtime((const time_t*)&sec);
+        snprintf(temp_time, sizeof(temp_time), "%d-%02d-%02d %02d:%02d:%02d.%.3d %s%02d:00", 1900 + tm.tm_year, 1 + tm.tm_mon, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, _info->timeval.tv_usec / 1000, (tm.tm_gmtoff > 0 ? "+" : "-"), (int)(tm.tm_gmtoff / 3600.0));
+    }
+    snprintf(log, sizeof(log), "[%s] ***** ", temp_time);
+    printf("%s%s\n", log, _log);
 }
 
 bool isNetworkConnected()

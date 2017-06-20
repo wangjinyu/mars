@@ -65,7 +65,6 @@
 #include "mars/comm/strutil.h"
 #include "mars/comm/mmap_util.h"
 #include "mars/comm/tickcount.h"
-#include "mars/comm/verinfo.h"
 
 #include "log_buffer.h"
 
@@ -110,8 +109,8 @@ static void __async_log_thread();
 static Thread sg_thread_async(&__async_log_thread);
 
 static const unsigned int kBufferBlockLength = 150 * 1024;
-static const long kMaxLogAliveTime = 10 * 24 * 60 * 60;	// 10 days in second
-
+long kMaxLogAliveTime = 10 * 24 * 60 * 60;	// 10 days in second
+bool start_witn_mmap = false;
 static std::string sg_log_extra_msg;
 
 static boost::iostreams::mapped_file sg_mmmap_file;
@@ -147,6 +146,18 @@ static std::string __make_logfilenameprefix(const timeval& _tv, const char* _pre
     filenameprefix += temp;
     
     return filenameprefix;
+}
+
+void xlogger_set_alive_time(long seconds) {
+    if (seconds <= 0) {
+        kMaxLogAliveTime = 10 * 24 * 60 * 60;
+    } else {
+        kMaxLogAliveTime = seconds;
+    }
+}
+
+void set_xlogger_log_start_with_mmap_info(bool mmap) {
+    start_witn_mmap = mmap;
 }
 
 static void __get_filenames_by_prefix(const std::string& _logdir, const std::string& _fileprefix, const std::string& _fileext, std::vector<std::string>& _filename_vec) {
@@ -481,7 +492,6 @@ static bool __openlogfile(const std::string& _log_dir) {
         __writetips2console("open file error:%d %s, path:%s", errno, strerror(errno), logfilepath);
     }
 
-
     if (0 != s_last_time && (now_time - s_last_time) > (time_t)((now_tick - s_last_tick) / 1000 + 300)) {
 
         struct tm tm_tmp = *localtime((const time_t*)&s_last_time);
@@ -813,7 +823,6 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
     tick.gettickcount();
 	__del_timeout_file(_dir);
 
-    tickcountdiff_t del_timeout_file_time = tickcount_t().gettickcount() - tick;
     
     tick.gettickcount();
 
@@ -846,40 +855,11 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
 	appender_setmode(_mode);
     lock.unlock();
     
-    char mark_info[512] = {0};
-    get_mark_info(mark_info, sizeof(mark_info));
-
     if (buffer.Ptr()) {
-        __writetips2file("~~~~~ begin of mmap ~~~~~\n");
         __log2file(buffer.Ptr(), buffer.Length());
-        __writetips2file("~~~~~ end of mmap ~~~~~%s\n", mark_info);
     }
-
-    tickcountdiff_t get_mmap_time = tickcount_t().gettickcount() - tick;
-
-
-    char appender_info[728] = {0};
-    snprintf(appender_info, sizeof(appender_info), "^^^^^^^^^^" __DATE__ "^^^" __TIME__ "^^^^^^^^^^%s", mark_info);
-
-    xlogger_appender(NULL, appender_info);
-    char logmsg[64] = {0};
-    snprintf(logmsg, sizeof(logmsg), "del time out files time: %" PRIu64, (int64_t)del_timeout_file_time);
-    xlogger_appender(NULL, logmsg);
-
-    snprintf(logmsg, sizeof(logmsg), "get mmap time: %" PRIu64, (int64_t)get_mmap_time);
-    xlogger_appender(NULL, logmsg);
-
-    xlogger_appender(NULL, "MARS_URL: " MARS_URL);
-    xlogger_appender(NULL, "MARS_PATH: " MARS_PATH);
-    xlogger_appender(NULL, "MARS_REVISION: " MARS_REVISION);
-    xlogger_appender(NULL, "MARS_BUILD_TIME: " MARS_BUILD_TIME);
-    xlogger_appender(NULL, "MARS_BUILD_JOB: " MARS_TAG);
-
-    snprintf(logmsg, sizeof(logmsg), "log appender mode:%d, use mmap:%d", (int)_mode, use_mmap);
-    xlogger_appender(NULL, logmsg);
-
+    
 	BOOT_RUN_EXIT(appender_close);
-
 }
 
 void appender_open_with_cache(TAppenderMode _mode, const std::string& _cachedir, const std::string& _logdir, const char* _nameprefix) {
@@ -925,12 +905,6 @@ void appender_flush_sync() {
 
 void appender_close() {
     if (sg_log_close) return;
-
-    char mark_info[512] = {0};
-    get_mark_info(mark_info, sizeof(mark_info));
-    char appender_info[728] = {0};
-    snprintf(appender_info, sizeof(appender_info), "$$$$$$$$$$" __DATE__ "$$$" __TIME__ "$$$$$$$$$$%s\n", mark_info);
-    xlogger_appender(NULL, appender_info);
 
     sg_log_close = true;
 

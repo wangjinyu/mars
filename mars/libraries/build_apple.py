@@ -22,7 +22,7 @@ class Project:
         self.other_cflags = other_cflags
 
 iphone_project = Project(RELATIVE_PATH + "mars-open-iphone.xcodeproj", "iphone", set(["Release-iphoneos", "Release-iphonesimulator"]), "mars", "mars.framework", "")
-iphone_xlog_project = Project(RELATIVE_PATH + "mars-log-iphone.xcodeproj", "iphone", set(["Release-iphoneos", "Release-iphonesimulator"]), "mars", "mars.framework", "")
+iphone_xlog_project = Project(RELATIVE_PATH + "mars-log-iphone.xcodeproj", "iphone", set(["Release-iphoneos", "Release-iphonesimulator"]), "xlogger", "xlogger.framework", "")
 iphone_project_with_bitcode = Project(RELATIVE_PATH + "mars-open-iphone.xcodeproj", "iphone", set(["Release-iphoneos", "Release-iphonesimulator"]), "mars", "mars.framework", "-fembed-bitcode")
 mac_project = Project(RELATIVE_PATH + "mars-open-mac.xcodeproj", "macosx", set(["Release"]), "mars", "mars.framework", "")
 
@@ -80,12 +80,12 @@ def link_openssl(output_lib_path, cpu_folder):
     os.system("ar -x %s/%s/libcrypto.a" % (openssl_lib_folder, cpu_folder))
     os.system("ar -x %s/%s/libssl.a" % (openssl_lib_folder, cpu_folder))
     os.chdir(old_path)
-    
+
     if not os.path.isfile(output_lib_path):
         os.system("ar -cur %s %s/%s/*.o 2>/dev/null" %(output_lib_path, openssl_lib_folder, cpu_folder))
     else:
         os.system("ar -q %s %s/%s/*.o 2>/dev/null" %(output_lib_path, openssl_lib_folder, cpu_folder))
-    
+
     os.system("rm -rf %s/%s" % (openssl_lib_folder, cpu_folder))
 
 def build_apple(project, save_path):
@@ -122,7 +122,7 @@ def build_apple(project, save_path):
             print("\033[0;31;40m!!!!build %s failed!!!\033[0m" %(target))
             return False
 
-    
+
     save_path = os.path.join(LIBRARIES_PATH, save_path + "/" + os.path.splitext(os.path.split(project.path)[1])[0] + project.other_cflags)
     if not os.path.exists(save_path):
         os.makedirs(save_path)
@@ -133,7 +133,7 @@ def build_apple(project, save_path):
     cpu_num = 0
 
     (child_folders, child_projects) = get_child_project(project.path)
- 
+
     for i, cf in enumerate(child_folders):
         print("merging %s..........." %(cf))
         for pf in project.platform_folders:
@@ -160,7 +160,7 @@ def build_apple(project, save_path):
     if not os.path.exists(framework_path):
         os.mkdir(framework_path)
 
-    
+
     print("ranlib ing..............")
     os.system("ranlib %s/*.a 2>/dev/null" %(save_path))
     print("lipo ing..............")
@@ -170,10 +170,10 @@ def build_apple(project, save_path):
     copy_files(RELATIVE_PATH, framework_path + "/Headers", save_path, APPLE_COPY_EXT_FILES, child_folders)
 
     return True
-      
+
 
 def main():
-    
+
     if not check_python_version():
         return
 
@@ -181,9 +181,9 @@ def main():
         prefix = sys.argv[1]
     else:
         prefix = raw_input("input prefix for save directory. like `trunk`,`br`,`tag`: ").strip()
-    
+
     save_path = prefix + "_[%s]@%s@%s" % (time.strftime('%Y-%m-%d_%H.%M', time.localtime()), get_revision(RELATIVE_PATH), getpass.getuser())
-    
+
     while True:
         num = raw_input("\033[0;33mEnter menu:\n1. build mars for iphone.\n2. build mars for iphone with bitcode.\n3. build xlog for iphone\n4. build mars for macosx.\n5. build all.\n6. exit.\033[0m\n").strip()
         if num == "1" or num == "2" or num == "3" or num == "4":
@@ -201,7 +201,7 @@ def main():
 
 if __name__ == "__main__":
     before_time = time.time()
-    
+
     main()
 
     after_time = time.time()
