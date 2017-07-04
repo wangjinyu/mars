@@ -68,7 +68,7 @@
 
 #include "log_buffer.h"
 
-#define LOG_EXT "xlog"
+#define LOG_EXT "log"
 
 extern void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _log);
 extern void ConsoleLog(const XLoggerInfo* _info, const char* _log);
