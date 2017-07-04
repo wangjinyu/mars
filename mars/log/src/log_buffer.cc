@@ -27,7 +27,7 @@
 #include <errno.h>
 #include <assert.h>
 
-#include "log/crypt/log_crypt.h"
+#include "log_crypt.h"
 
 
 #ifdef WIN32

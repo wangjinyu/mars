@@ -174,7 +174,7 @@ static void __anr_checker_thread() {
         if (!sg_check_heap.empty() && check_hit) {
             check_content& front = sg_check_heap.front();
             __ASSERT2(front.file, front.line, front.func, "anr dead lock", "timeout:%d, tid:%" PRIu64 ", runing time:%" PRIu64 ", real time:%" PRIu64 ", used_cpu_time:%" PRIu64 ", iOS_style:%s, anr_checker_size:%d, @%p",
-                    front.timeout, front.tid, clock_app_monotonic() - front.start_time, gettickcount() - front.start_tickcount, front.used_cpu_time, iOS_style?"true":"false", (int)sg_check_heap.size(), (void*)sg_check_heap.front().ptr);
+                    front.timeout, (unsigned long long)front.tid, clock_app_monotonic() - front.start_time, gettickcount() - front.start_tickcount, front.used_cpu_time, iOS_style?"true":"false", (int)sg_check_heap.size(), (void*)sg_check_heap.front().ptr);
 #ifdef ANDROID
             __FATAL_ASSERT2(front.file, front.line, front.func, "anr dead lock", "timeout:%d, tid:%" PRIu64 ", runing time:%" PRIu64 ", real time:%" PRIu64 ", used_cpu_time:%" PRIu64 ", iOS_style:%s, anr_checker_size:%d, @%p",
                     front.timeout, front.tid, clock_app_monotonic() - front.start_time, gettickcount() - front.start_tickcount, front.used_cpu_time, iOS_style?"true":"false", (int)sg_check_heap.size(), (void*)sg_check_heap.front().ptr);

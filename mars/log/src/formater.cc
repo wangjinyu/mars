@@ -78,7 +78,6 @@ void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _lo
     }
 
     if (NULL != _logbody) {
-        // in android 64bit, in strnlen memchr,  const unsigned char*  end = p + n;  > 4G!!!!! in stack array
 
         size_t bodylen =  _log.MaxLength() - _log.Length() > 130 ? _log.MaxLength() - _log.Length() - 130 : 0;
         bodylen = bodylen > 0xFFFFU ? 0xFFFFU : bodylen;

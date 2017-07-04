@@ -795,17 +795,6 @@ const char* xlogger_dump(const void* _dumpbuffer, size_t _len) {
     return (const char*)sg_tss_dumpfile.get();
 }
 
-
-static void get_mark_info(char* _info, size_t _infoLen) {
-	struct timeval tv;
-	gettimeofday(&tv, 0);
-	time_t sec = tv.tv_sec; 
-	struct tm tm_tmp = *localtime((const time_t*)&sec);
-	char tmp_time[64] = {0};
-	strftime(tmp_time, sizeof(tmp_time), "%Y-%m-%d %z %H:%M:%S", &tm_tmp);
-	snprintf(_info, _infoLen, "[%" PRIdMAX ",%" PRIdMAX "][%s]", xlogger_pid(), xlogger_tid(), tmp_time);
-}
-
 void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefix) {
 	assert(_dir);
 	assert(_nameprefix);

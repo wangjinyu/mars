@@ -83,7 +83,7 @@ struct thread_safe_counter
 
     static unsigned int decrement(mars_boost::detail::atomic_count& counter) BOOST_NOEXCEPT
     {
-        return --counter;
+        return (unsigned int)--counter;
     }
 };
 

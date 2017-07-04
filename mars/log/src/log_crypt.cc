@@ -35,7 +35,6 @@ static uint16_t __GetSeq(bool _is_async) {
     if (!_is_async) {
         return 0;
     }
-    
     static uint16_t s_seq = 0;
     
     s_seq ++;
@@ -52,16 +51,23 @@ static uint16_t __GetSeq(bool _is_async) {
  */
 
 uint32_t LogCrypt::GetHeaderLen() {
+    if (log_use_header_info == false) {
+        return 0;
+    }
     return sizeof(char) * 3 + sizeof(uint16_t) + sizeof(uint32_t) * 2;
 }
 
 uint32_t LogCrypt::GetTailerLen() {
+    if (log_use_header_info == false) {
+        return 0;
+    }
     return sizeof(kMagicEnd);
 }
 
 void LogCrypt::SetHeaderInfo(char* _data, bool _is_async) {
-
-    
+    if (log_use_header_info == false) {
+        return;
+    }
     if (_is_async) {
         memcpy(_data, &kMagicAsyncStart, sizeof(kMagicAsyncStart));
     } else {
@@ -91,10 +97,17 @@ void LogCrypt::SetHeaderInfo(char* _data, bool _is_async) {
 }
 
 void LogCrypt::SetTailerInfo(char* _data) {
-    memcpy(_data, &kMagicEnd, sizeof(kMagicEnd));
+    if (log_use_header_info == true) {
+        memcpy(_data, &kMagicEnd, sizeof(kMagicEnd));
+    }
 }
 
 uint32_t LogCrypt::GetLogLen(const char*  const _data, size_t _len) {
+    
+    if (log_use_header_info == false) {
+        return 0;
+    }
+    
     if (_len < GetHeaderLen()) return 0;
     
     char start = _data[0];
@@ -106,14 +119,18 @@ uint32_t LogCrypt::GetLogLen(const char*  const _data, size_t _len) {
 }
 
 void LogCrypt::UpdateLogLen(char* _data, uint32_t _add_len) {
-
+    if (log_use_header_info == false) {
+        return;
+    }
     uint32_t currentlen = (uint32_t)(GetLogLen(_data, GetHeaderLen()) + _add_len);
     memcpy(_data + GetHeaderLen() - sizeof(uint32_t) * 2, &currentlen, sizeof(currentlen));
 }
 
 
 bool LogCrypt::GetLogHour(const char* const _data, size_t _len, int& _begin_hour, int& _end_hour) {
-    
+    if (log_use_header_info == false) {
+        return false;
+    }
     if (_len < GetHeaderLen()) return false;
     
     char start = _data[0];
@@ -128,6 +145,9 @@ bool LogCrypt::GetLogHour(const char* const _data, size_t _len, int& _begin_hour
 }
 
 void LogCrypt::UpdateLogHour(char* _data) {
+    if (log_use_header_info == false) {
+        return;
+    }
     
     struct timeval tv;
     gettimeofday(&tv, 0);
@@ -140,6 +160,10 @@ void LogCrypt::UpdateLogHour(char* _data) {
 
 
 bool LogCrypt::GetPeriodLogs(const char* const _log_path, int _begin_hour, int _end_hour, unsigned long& _begin_pos, unsigned long& _end_pos, std::string& _err_msg) {
+
+    if (log_use_header_info == false) {
+        return true;
+    }
     
     char msg[1024] = {0};
     
@@ -288,27 +312,33 @@ bool LogCrypt::GetPeriodLogs(const char* const _log_path, int _begin_hour, int _
 void LogCrypt::CryptSyncLog(const char* const _log_data, size_t _input_len, AutoBuffer& _out_buff) {
 	_out_buff.AllocWrite(GetHeaderLen() + GetTailerLen() + _input_len);
     
-	uint16_t seq = __GetSeq(false);
-    uint32_t len = (uint32_t)_input_len;
+    if (log_use_header_info == false) {
+        memcpy((char*)_out_buff.Ptr(), _log_data, _input_len);
+        _out_buff.Length(0, _input_len);
+    } else {
     
-    memcpy((char*)_out_buff.Ptr() + GetHeaderLen(), _log_data, len);
-    ((char*)_out_buff.Ptr())[GetHeaderLen() + len] = kMagicEnd;
-    ((char*)_out_buff.Ptr())[0] = kMagicSyncStart;
-    
-    memcpy((char*)_out_buff.Ptr() + 1, &seq, sizeof(seq));
-    
-    struct timeval tv;
-    gettimeofday(&tv, 0);
-    time_t sec = tv.tv_sec;
-    tm tm_tmp = *localtime((const time_t*)&sec);
-    
-    char hour = (char)tm_tmp.tm_hour;
-    
-    memcpy((char*)_out_buff.Ptr()+3, &hour, sizeof(hour));
-    memcpy((char*)_out_buff.Ptr()+4, &hour, sizeof(hour));
-    memcpy((char*)_out_buff.Ptr()+5, &len, sizeof(len));
-    
-    _out_buff.Length(GetHeaderLen() + GetTailerLen() + _input_len, GetHeaderLen() + GetTailerLen() + _input_len);
+        uint16_t seq = __GetSeq(false);
+        uint32_t len = (uint32_t)_input_len;
+        
+        memcpy((char*)_out_buff.Ptr() + GetHeaderLen(), _log_data, len);
+        ((char*)_out_buff.Ptr())[GetHeaderLen() + len] = kMagicEnd;
+        ((char*)_out_buff.Ptr())[0] = kMagicSyncStart;
+        
+        memcpy((char*)_out_buff.Ptr() + 1, &seq, sizeof(seq));
+        
+        struct timeval tv;
+        gettimeofday(&tv, 0);
+        time_t sec = tv.tv_sec;
+        tm tm_tmp = *localtime((const time_t*)&sec);
+        
+        char hour = (char)tm_tmp.tm_hour;
+        
+        memcpy((char*)_out_buff.Ptr()+3, &hour, sizeof(hour));
+        memcpy((char*)_out_buff.Ptr()+4, &hour, sizeof(hour));
+        memcpy((char*)_out_buff.Ptr()+5, &len, sizeof(len));
+        
+        _out_buff.Length(GetHeaderLen() + GetTailerLen() + _input_len, GetHeaderLen() + GetTailerLen() + _input_len);
+    }
 }
 
 void LogCrypt::CryptAsyncLog(const char* const _log_data, size_t _input_len, AutoBuffer& _out_buff) {

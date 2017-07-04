@@ -51,7 +51,7 @@ _test_connect(int pf, struct sockaddr *addr, size_t addrlen, struct sockaddr* lo
     int ret;
     unsigned int loop_count = 0;
     do {
-        ret = connect(s, addr, addrlen);
+        ret = connect(s, addr, (socklen_t)addrlen);
     } while (ret < 0 && errno == EINTR && loop_count++<kMaxLoopCount);
     if (loop_count>=kMaxLoopCount) {
     	xerror2(TSF"connect error. loop_count = %_", loop_count);

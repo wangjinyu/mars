@@ -25,7 +25,7 @@
 #include <string>
 
 #include "mars/comm/autobuffer.h"
-
+static bool log_use_header_info = false;
 
 class LogCrypt {
 public:
@@ -39,6 +39,7 @@ private:
 public:
     uint32_t GetHeaderLen();
     uint32_t GetTailerLen();
+    
     
     void SetHeaderInfo(char* _data, bool _is_async);
     void SetTailerInfo(char* _data);

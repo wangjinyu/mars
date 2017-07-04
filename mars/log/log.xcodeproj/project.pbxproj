@@ -34,8 +34,6 @@
 		4B243A591CC101B4006A490F /* formater.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = formater.cc; sourceTree = "<group>"; };
 		4BAD09851D34CE8A006BC5B0 /* log_buffer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_buffer.cc; sourceTree = "<group>"; };
 		4BAD09861D34CE8A006BC5B0 /* log_buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_buffer.h; sourceTree = "<group>"; };
-		718F28381F01131500A76308 /* log_crypt.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = log_crypt.cc; path = crypt/log_crypt.cc; sourceTree = SOURCE_ROOT; };
-		718F283A1F01136000A76308 /* log_crypt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = log_crypt.h; path = crypt/log_crypt.h; sourceTree = SOURCE_ROOT; };
 		71A4A5021F00EE5E00B107E5 /* log_crypt.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_crypt.cc; sourceTree = "<group>"; };
 		71A4A5031F00EE5E00B107E5 /* log_crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_crypt.h; sourceTree = "<group>"; };
 		71A4A5051F00EF0000B107E5 /* string_cast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string_cast.h; sourceTree = "<group>"; };
@@ -58,8 +56,6 @@
 			children = (
 				71A4A5051F00EF0000B107E5 /* string_cast.h */,
 				4BAD09851D34CE8A006BC5B0 /* log_buffer.cc */,
-				718F28381F01131500A76308 /* log_crypt.cc */,
-				718F283A1F01136000A76308 /* log_crypt.h */,
 				4BAD09861D34CE8A006BC5B0 /* log_buffer.h */,
 				4B243A581CC101B4006A490F /* appender.cc */,
 				4B243A591CC101B4006A490F /* formater.cc */,

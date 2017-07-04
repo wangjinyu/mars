@@ -290,7 +290,7 @@ std::streamsize file_descriptor_impl::write(const char* s, std::streamsize n)
         throw_system_failure("failed writing");
     return n;
 #else // #ifdef BOOST_IOSTREAMS_WINDOWS
-    int amt = BOOST_IOSTREAMS_FD_WRITE(handle_, s, n);
+    ssize_t amt = BOOST_IOSTREAMS_FD_WRITE(handle_, s, n);
     if (amt < n) // Handles blocking fd's only.
         throw_system_failure("failed writing");
     return n;
