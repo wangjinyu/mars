@@ -10,10 +10,10 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <sys/cdefs.h>
-#include "mars/comm/string_cast.h"
+//#include "mars/comm/string_cast.h"
 #include "xloggerbase.h"
 #include "preprocessor.h"
-
+#include "/Users/jinyu/Documents/mars/mars/comm/string_cast.h"
 #ifdef XLOGGER_DISABLE
 #define  xlogger_IsEnabledFor(_level)	(false)
 #define  xlogger_AssertP(...)			((void)0)

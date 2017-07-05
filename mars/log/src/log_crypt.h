@@ -24,7 +24,10 @@
 #include <stdint.h>
 #include <string>
 
-#include "mars/comm/autobuffer.h"
+//#include "mars/comm/autobuffer.h"
+#include "/Users/jinyu/Documents/mars/mars/comm/autobuffer.h"
+
+
 static bool log_use_header_info = false;
 
 class LogCrypt {

@@ -557,7 +557,6 @@ static void __log2file(const void* _data, size_t _len) {
             __closelogfile();
         }
 
-
         char logfilepath[1024] = {0};
         __make_logfilename(tv, sg_logdir, sg_logfileprefix.c_str(), LOG_EXT, logfilepath , 1024);
         if (__append_file(logcachefilepath, logfilepath)) {
